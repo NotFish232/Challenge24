@@ -40,18 +40,18 @@ namespace Challenge24
 
         private void run()
         {
-            while (!(cards.Find(card => card.val() == 24 && !card.used()) != null && cards.Count(card => card.used()) == 3))
+            while (!(cards.Find(card => card.val() == 24 && !card.used()) != null && cards.Count(card => card.used()) == cards.Count - 1))
             {
                 int first_index = get_card_index(cards);
                 cards[first_index].set_used(true);
 
-                string op = get_operator();
+                string op = Cards.operators[get_operator_index()];
 
                 int second_index = get_card_index(cards);
                 cards[second_index].set_used(true);
 
-                cards[first_index].set_used(false);
                 cards[first_index].operation(cards[second_index], op);
+                cards[first_index].set_used(false);
             }
 
             timer.Stop();
@@ -66,7 +66,7 @@ namespace Challenge24
         private void log_results(List<Cards> cards, TimeSpan time, string user_solution, string computer_solution)
         {
             print_cards(cards);
-            log($"\nYou solved [{String.Join(" ", cards)}] in {time.Seconds}.{time.Milliseconds} seconds!");
+            log($"\nYou solved [{String.Join(", ", cards)}] in {time.Seconds}.{time.Milliseconds} seconds!");
             log($"Your solution: {user_solution}");
             log($"Computer solution: {computer_solution}\n");
         }
@@ -99,12 +99,12 @@ namespace Challenge24
         {
             foreach (Cards card in cards)
             {
-                Console.Write($"{(card.used() ? "*" : Math.Round(card.val(), 2))} ");
+                Console.Write((card.used() ? "*" : Math.Round(card.val(), 2)) + " ");
             }
             Console.WriteLine();
         }
 
-        private string get_operator()
+        private int get_operator_index()
         {
             foreach (string op in Cards.operators)
             {
@@ -120,7 +120,7 @@ namespace Challenge24
 
             } while (!(inpt >= 1 && inpt <= Cards.operators.Length));
 
-            return Cards.operators[inpt - 1];
+            return inpt - 1;
         }
 
         private int input()
@@ -132,7 +132,6 @@ namespace Challenge24
             {
                 if (input.ToLower() == "q")
                 {
-                    Console.WriteLine($"Solution: {solution}");
                     Environment.Exit(0);
                 }
                 if (input.ToLower() == "s")
@@ -204,9 +203,9 @@ namespace Challenge24
     static class Generator
     {
         private static int cards_count = 4;
-        private static int min = 1;
-        private static int max = 12;
-        private static int target = 24;
+        private static int min_num = 1;
+        private static int max_num = 15;
+        private static int target_num = 24;
         private static Random rnd = new Random();
 
         public static Tuple<List<Cards>, string> generate_cards()
@@ -219,7 +218,7 @@ namespace Challenge24
                 cards.Clear();
                 for (int i = 0; i < Generator.cards_count; i++)
                 {
-                    cards.Add(new Cards((int)rnd.NextInt64(Generator.min, Generator.max)));
+                    cards.Add(new Cards((int)rnd.NextInt64(Generator.min_num, Generator.max_num)));
                     result = is_solvable(cards);
                 }
             } while (!result.Item1);
@@ -229,7 +228,7 @@ namespace Challenge24
 
         private static Tuple<bool, string> is_solvable(List<Cards> cards)
         {
-            if (cards.Count == 1) return Tuple.Create(cards[0].val() == target, cards[0].equation());
+            if (cards.Count == 1) return Tuple.Create(cards[0].val() == target_num, cards[0].equation());
 
             for (int i = 0; i < cards.Count; i++)
             {
