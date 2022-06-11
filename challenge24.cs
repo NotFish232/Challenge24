@@ -155,14 +155,14 @@ namespace Challenge24
 
         public static (List<Cards>, string) generate_cards()
         {
-            List<Cards> cards = new List<Cards>();
-            (bool, string) result = (false, "");
+            List<Cards> cards;
+            (bool, string) result;
 
-            while (!result.Item1)
+            do
             {
                 cards = Enumerable.Range(1, cards_count).Select(s => new Cards(rnd.Next(min_num, max_num))).ToList();
                 result = is_solvable(cards);
-            }
+            } while (!result.Item1);
 
             return (cards, result.Item2);
         }
