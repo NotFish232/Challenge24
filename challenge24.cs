@@ -24,8 +24,10 @@ namespace Challenge24
             set = Generator.generate_cards();
             cards = set.Item1.ConvertAll(card => card.copy());
             solution = set.Item2;
+
             timer = new Stopwatch();
             timer.Start();
+
             run();
         }
 
@@ -35,14 +37,18 @@ namespace Challenge24
             {
                 int first_card_index = get_card_index(cards);
                 cards[first_card_index].used = true;
+
                 string op = Cards.operators[get_operator_index()];
+
                 int second_card_index = get_card_index(cards);
                 cards[second_card_index].used = true;
+
                 cards[first_card_index].operation(cards[second_card_index], op);
                 cards[first_card_index].used = false;
             }
-            Console.WriteLine(String.Join(" ", cards));
             timer.Stop();
+
+            Console.WriteLine(String.Join(" ", cards));
             log_results(set.Item1, timer.Elapsed, cards.FindAll(card => !card.used)[0].equation, solution);
         }
 
@@ -65,6 +71,7 @@ namespace Challenge24
         private int get_card_index(List<Cards> cards)
         {
             Console.WriteLine(String.Join(" ", cards));
+
             int inpt;
             do
             {
@@ -72,12 +79,14 @@ namespace Challenge24
                 inpt = input();
 
             } while (!(inpt >= 1 && inpt <= cards.Count) || cards[inpt - 1].used);
+
             return inpt - 1;
         }
 
         private int get_operator_index()
         {
-            Console.WriteLine(String.Join(" ",Cards.operators));
+            Console.WriteLine(String.Join(" ", Cards.operators));
+
             int inpt;
             do
             {
@@ -85,6 +94,7 @@ namespace Challenge24
                 inpt = input();
 
             } while (!(inpt >= 1 && inpt <= Cards.operators.Length));
+
             return inpt - 1;
         }
 
@@ -92,12 +102,14 @@ namespace Challenge24
         {
             int result = 0;
             var input = Console.ReadLine();
+
             if (!string.IsNullOrWhiteSpace(input))
             {
                 if (input.ToLower() == "q") Environment.Exit(0);
                 if (input.ToLower() == "s") Console.WriteLine($"Solution: {solution}");
                 Int32.TryParse(input, out result);
             }
+
             return result;
         }
 
@@ -122,7 +134,7 @@ namespace Challenge24
 
         public bool used { get => _used; set => _used = value; }
 
-        public override string ToString() => used ? "*": val.ToString();
+        public override string ToString() => used ? "*" : val.ToString();
 
         public Cards copy() => (Cards)this.MemberwiseClone();
 
@@ -145,15 +157,13 @@ namespace Challenge24
         {
             List<Cards> cards = new List<Cards>();
             (bool, string) result = (false, "");
+
             while (!result.Item1)
             {
-                cards.Clear();
-                for (int i = 0; i < Generator.cards_count; i++)
-                {
-                    cards.Add(new Cards((int)rnd.NextInt64(Generator.min_num, Generator.max_num)));
-                }
+                cards = Enumerable.Range(1, cards_count).Select(s => new Cards((int)rnd.NextInt64(min_num, max_num))).ToList();
                 result = is_solvable(cards);
             }
+
             return (cards, result.Item2);
         }
 
@@ -181,6 +191,7 @@ namespace Challenge24
                     }
                 }
             }
+
             return (false, "");
         }
 
