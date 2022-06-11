@@ -128,7 +128,7 @@ namespace Challenge24
 
         }
 
-        public double val { get => Cards.eval(equation); }
+        public double val { get => eval(equation); }
 
         public string equation { get => _equation; set => _equation = value; }
 
@@ -183,7 +183,7 @@ namespace Challenge24
                         if (op != "/" || cards[j].val != 0)
                         {
                             newCards.Add(cards[i].copy().operation(cards[j], op));
-                            (bool, string) result = Generator.is_solvable(newCards);
+                            (bool, string) result = is_solvable(newCards);
                             newCards.RemoveAt(newCards.Count - 1);
                             if (result.Item1) return result;
 
