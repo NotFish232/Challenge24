@@ -160,7 +160,7 @@ namespace Challenge24
 
             while (!result.Item1)
             {
-                cards = Enumerable.Range(1, cards_count).Select(s => new Cards((int)rnd.NextInt64(min_num, max_num))).ToList();
+                cards = Enumerable.Range(1, cards_count).Select(s => new Cards(rnd.Next(min_num, max_num))).ToList();
                 result = is_solvable(cards);
             }
 
