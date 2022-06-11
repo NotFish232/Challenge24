@@ -8,16 +8,13 @@ namespace Challenge24
     {
         public static void Main(String[] args)
         {
-            while (true)
-            {
-                new Game();
-            }
+            while (true) { new Game(); }
         }
     }
 
     class Game
     {
-        private Tuple<List<Cards>, string> set;
+        private (List<Cards>, string) set;
         private List<Cards> cards;
         private string solution;
         private Stopwatch timer;
@@ -25,48 +22,33 @@ namespace Challenge24
         public Game()
         {
             set = Generator.generate_cards();
-            cards = new List<Cards>();
-            foreach (Cards card in set.Item1)
-            {
-                cards.Add(card.copy());
-            }
+            cards = set.Item1.ConvertAll(card => card.copy());
             solution = set.Item2;
-
             timer = new Stopwatch();
             timer.Start();
-
             run();
         }
 
         private void run()
         {
-            while (!(cards.Find(card => card.val() == 24 && !card.used()) != null && cards.Count(card => card.used()) == cards.Count - 1))
+            while (cards.Count(card => card.used) != cards.Count - 1 || cards.Find(card => !card.used)?.val != 24)
             {
-                int first_index = get_card_index(cards);
-                cards[first_index].set_used(true);
-
+                int first_card_index = get_card_index(cards);
+                cards[first_card_index].used = true;
                 string op = Cards.operators[get_operator_index()];
-
-                int second_index = get_card_index(cards);
-                cards[second_index].set_used(true);
-
-                cards[first_index].operation(cards[second_index], op);
-                cards[first_index].set_used(false);
+                int second_card_index = get_card_index(cards);
+                cards[second_card_index].used = true;
+                cards[first_card_index].operation(cards[second_card_index], op);
+                cards[first_card_index].used = false;
             }
-
+            Console.WriteLine(String.Join(" ", cards));
             timer.Stop();
-
-            var card = cards.Find(card => !card.used());
-            if (card != null)
-            {
-                log_results(set.Item1, timer.Elapsed, card.equation(), solution);
-            }
+            log_results(set.Item1, timer.Elapsed, cards.FindAll(card => !card.used)[0].equation, solution);
         }
 
         private void log_results(List<Cards> cards, TimeSpan time, string user_solution, string computer_solution)
         {
-            print_cards(cards);
-            log($"\nYou solved [{String.Join(", ", cards)}] in {time.Seconds}.{time.Milliseconds} seconds!");
+            log($"You solved [{String.Join(", ", cards)}] in {time.Seconds}.{time.Milliseconds} seconds!");
             log($"Your solution: {user_solution}");
             log($"Computer solution: {computer_solution}\n");
         }
@@ -82,36 +64,20 @@ namespace Challenge24
 
         private int get_card_index(List<Cards> cards)
         {
-            print_cards(cards);
-
+            Console.WriteLine(String.Join(" ", cards));
             int inpt;
             do
             {
                 Console.Write($"Pick a card (1 - {cards.Count}): ");
                 inpt = input();
 
-            } while (!(inpt >= 1 && inpt <= cards.Count) || cards[inpt - 1].used());
-
+            } while (!(inpt >= 1 && inpt <= cards.Count) || cards[inpt - 1].used);
             return inpt - 1;
-        }
-
-        private void print_cards(List<Cards> cards)
-        {
-            foreach (Cards card in cards)
-            {
-                Console.Write((card.used() ? "*" : Math.Round(card.val(), 2)) + " ");
-            }
-            Console.WriteLine();
         }
 
         private int get_operator_index()
         {
-            foreach (string op in Cards.operators)
-            {
-                Console.Write(op + " ");
-            }
-            Console.WriteLine();
-
+            Console.WriteLine(String.Join(" ",Cards.operators));
             int inpt;
             do
             {
@@ -119,7 +85,6 @@ namespace Challenge24
                 inpt = input();
 
             } while (!(inpt >= 1 && inpt <= Cards.operators.Length));
-
             return inpt - 1;
         }
 
@@ -127,20 +92,12 @@ namespace Challenge24
         {
             int result = 0;
             var input = Console.ReadLine();
-
             if (!string.IsNullOrWhiteSpace(input))
             {
-                if (input.ToLower() == "q")
-                {
-                    Environment.Exit(0);
-                }
-                if (input.ToLower() == "s")
-                {
-                    Console.WriteLine($"Solution: {solution}");
-                }
+                if (input.ToLower() == "q") Environment.Exit(0);
+                if (input.ToLower() == "s") Console.WriteLine($"Solution: {solution}");
                 Int32.TryParse(input, out result);
             }
-
             return result;
         }
 
@@ -156,80 +113,53 @@ namespace Challenge24
         {
             _equation = "" + val;
             _used = false;
+
         }
 
-        public double val()
-        {
-            return Cards.eval(equation());
-        }
+        public double val { get => Cards.eval(equation); }
 
-        public override string ToString()
-        {
-            return val().ToString();
-        }
+        public string equation { get => _equation; set => _equation = value; }
 
-        public string equation()
-        {
-            return _equation;
-        }
+        public bool used { get => _used; set => _used = value; }
 
-        public void operation(Cards card, string op)
-        {
-            _equation = $"({equation()} {op} {card.equation()})";
-        }
+        public override string ToString() => used ? "*": val.ToString();
 
-        public bool used()
-        {
-            return _used;
-        }
+        public Cards copy() => (Cards)this.MemberwiseClone();
 
-        public void set_used(bool used)
-        {
-            _used = used;
-        }
+        public static double eval(string expression) => Convert.ToDouble(new DataTable().Compute(expression, ""));
 
-        public Cards copy()
+        public Cards operation(Cards card, string op)
         {
-            return (Cards)this.MemberwiseClone();
-        }
-
-        public static double eval(string expression)
-        {
-            return Convert.ToDouble(new DataTable().Compute(expression, ""));
+            equation = $"({equation} {op} {card.equation})";
+            return this;
         }
 
     }
 
     static class Generator
     {
-        private static int cards_count = 4;
-        private static int min_num = 1;
-        private static int max_num = 15;
-        private static int target_num = 24;
+        private static int cards_count = 4, min_num = 1, max_num = 15, target_num = 24;
         private static Random rnd = new Random();
 
-        public static Tuple<List<Cards>, string> generate_cards()
+        public static (List<Cards>, string) generate_cards()
         {
             List<Cards> cards = new List<Cards>();
-            Tuple<bool, string> result = Tuple.Create(false, "");
-
-            do
+            (bool, string) result = (false, "");
+            while (!result.Item1)
             {
                 cards.Clear();
                 for (int i = 0; i < Generator.cards_count; i++)
                 {
                     cards.Add(new Cards((int)rnd.NextInt64(Generator.min_num, Generator.max_num)));
-                    result = is_solvable(cards);
                 }
-            } while (!result.Item1);
-
-            return Tuple.Create(cards, result.Item2);
+                result = is_solvable(cards);
+            }
+            return (cards, result.Item2);
         }
 
-        private static Tuple<bool, string> is_solvable(List<Cards> cards)
+        private static (bool, string) is_solvable(List<Cards> cards)
         {
-            if (cards.Count == 1) return Tuple.Create(cards[0].val() == target_num, cards[0].equation());
-
+            if (cards.Count == 1) return (cards[0].val == target_num, cards[0].equation);
             for (int i = 0; i < cards.Count; i++)
             {
                 for (int j = 0; j < cards.Count; j++)
@@ -238,17 +168,12 @@ namespace Challenge24
                     List<Cards> newCards = new List<Cards>(cards);
                     newCards.Remove(cards[i]);
                     newCards.Remove(cards[j]);
-
                     foreach (string op in Cards.operators)
                     {
-                        if (!(op == "/" && cards[j].val() == 0))
+                        if (op != "/" || cards[j].val != 0)
                         {
-                            Cards card = cards[i].copy();
-                            card.operation(cards[j], op);
-                            newCards.Add(card);
-
-                            Tuple<bool, string> result = Generator.is_solvable(newCards);
-
+                            newCards.Add(cards[i].copy().operation(cards[j], op));
+                            (bool, string) result = Generator.is_solvable(newCards);
                             newCards.RemoveAt(newCards.Count - 1);
                             if (result.Item1) return result;
 
@@ -256,8 +181,7 @@ namespace Challenge24
                     }
                 }
             }
-
-            return Tuple.Create(false, "");
+            return (false, "");
         }
 
     }
