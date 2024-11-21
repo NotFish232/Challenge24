@@ -1,0 +1,8 @@
+[package]
+name = "challenge_24"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+minijinja = { version = "2.5.0", features = ["loader"] }
+rocket = "0.5.1"
