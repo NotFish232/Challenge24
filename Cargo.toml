@@ -4,5 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+fraction = "0.15.3"
 minijinja = { version = "2.5.0", features = ["loader"] }
-rocket = "0.5.1"
+rand = "0.8.5"
+rocket = { version = "0.5.1", features = ["json"] }
+serde = "1.0.215"
