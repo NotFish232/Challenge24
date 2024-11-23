@@ -2,9 +2,10 @@
 extern crate rocket;
 
 use minijinja::{context, path_loader, Environment};
-use rocket::{response::content::RawHtml, serde::json::Json, State};
+use rocket::{fs::FileServer, response::content::RawHtml, serde::json::Json, State};
 use serde::Serialize;
 mod generator;
+
 
 #[derive(Serialize)]
 struct Cards {
@@ -12,7 +13,7 @@ struct Cards {
     solutions: Vec<String>,
 }
 
-#[get("/generate_cards", format = "json")]
+#[get("/cards", format = "json")]
 fn generate_cards_route() -> Json<Cards> {
     let (cardset, solutions) = generator::generate_cardset();
 
@@ -27,8 +28,8 @@ fn generate_cards_route() -> Json<Cards> {
     Json(cards)
 }
 
-#[get("/hello")]
-fn world(jinja_env: &State<Environment>) -> RawHtml<String> {
+#[get("/")]
+fn index_route(jinja_env: &State<Environment>) -> RawHtml<String> {
     RawHtml(
         jinja_env
             .get_template("index.html")
@@ -46,6 +47,7 @@ fn run() -> _ {
     };
 
     rocket::build()
-        .mount("/", routes![world, generate_cards_route])
         .manage(jinja_env)
+        .mount("/", routes![index_route, generate_cards_route])
+        .mount("/static", FileServer::from("./static"))
 }
