@@ -1,11 +1,10 @@
 #[macro_use]
 extern crate rocket;
 
-use minijinja::{context, path_loader, Environment};
-use rocket::{fs::FileServer, response::content::RawHtml, serde::json::Json, State};
+use rocket::{fs::FileServer, serde::json::Json};
+use rocket_dyn_templates::{context, Template};
 use serde::Serialize;
 mod generator;
-
 
 #[derive(Serialize)]
 struct Cards {
@@ -29,25 +28,14 @@ fn generate_cards_route() -> Json<Cards> {
 }
 
 #[get("/")]
-fn index_route(jinja_env: &State<Environment>) -> RawHtml<String> {
-    RawHtml(
-        jinja_env
-            .get_template("index.html")
-            .and_then(|t| t.render(context! {}))
-            .unwrap(),
-    )
+fn index_route() -> Template {
+    Template::render("index", context! {})
 }
 
 #[launch]
 fn run() -> _ {
-    let jinja_env = {
-        let mut env = Environment::new();
-        env.set_loader(path_loader("templates"));
-        env
-    };
-
     rocket::build()
-        .manage(jinja_env)
+        .attach(Template::fairing())
         .mount("/", routes![index_route, generate_cards_route])
         .mount("/static", FileServer::from("./static"))
 }

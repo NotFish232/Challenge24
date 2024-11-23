@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 fraction = "0.15.3"
-minijinja = { version = "2.5.0", features = ["loader"] }
 rand = "0.8.5"
 rocket = { version = "0.5.1", features = ["json"] }
+rocket_dyn_templates = { version = "0.2.0", features = ["minijinja"] }
 serde = "1.0.215"
