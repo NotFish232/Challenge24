@@ -8,6 +8,7 @@
         <link rel="icon" href="/static/imgs/sigma.png" type="image/x-icon" />
         <link href="/static/css/output.css" rel="stylesheet" />
         <script src="/static/js/jquery_3.7.1.min.js"></script>
+        <script src="/static/js/fraction_5.2.1.min.js"></script>
         <script src="/static/js/index.js"></script>
     </head>
     <body>
@@ -15,12 +16,12 @@
             <div class="mb-8 flex flex-col items-center text-3xl">
                 Challenge 24
             </div>
-            <div class="grid size-[35rem] grid-cols-2 gap-5">
+            <div class="grid size-[32em] grid-cols-2 gap-4">
                 {% for i in range(4) %}
                 <div
-                    id="number_card_{{ i }}"
-                    class="relative flex items-center justify-center rounded-xl border-2 border-black">
-                    <div class="value text-5xl font-semibold"></div>
+                    id="number_card_{{ i + 1 }}"
+                    class="relative flex cursor-pointer items-center justify-center rounded-xl border-2 border-black">
+                    <div id="card_value" formula="" class="text-5xl font-semibold"></div>
                     <div class="absolute bottom-0 right-0 mb-2 mr-4">
                         {{ i + 1 }}
                     </div>
@@ -28,13 +29,21 @@
                 {% endfor %}
             </div>
 
-            <div class="absolute bottom-0 flex flex-row space-x-4">
-                {% for op in ["+", "-", "*", "/"] %}
+            <div class="absolute bottom-0 mb-3 flex flex-row space-x-4">
+                {% for op_name, op, hotkey in [("add", "+", "j"), ("subtract",
+                "-", "k"), ("multiply", "×", "l"), ("divide", "/", ";"),
+                ("reset", "↺", "u"), ("next", "→", "i")] %} {% if op_name ==
+                "reset" %}
+                <div class="w-4"></div>
+                {% endif %}
                 <div
-                    id="operator_{{ op }}"
-                    value="{{ op }}"
-                    class="flex size-24 items-center justify-center text-4xl">
+                    id="{% if op_name in ['reset', 'next'] %}special_{% endif %}operator_{{ op_name }}"
+                    op_value="{{ op_name }}"
+                    class="border-1 relative flex size-20 cursor-pointer items-center justify-center rounded-lg border border-black text-4xl">
                     {{ op }}
+                    <div class="absolute bottom-0 right-0 mb-1 mr-2 text-xs">
+                        {{ hotkey }}
+                    </div>
                 </div>
                 {% endfor %}
             </div>

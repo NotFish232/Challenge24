@@ -2,12 +2,12 @@
 module.exports = {
     tabWidth: 4,
     useTabs: false,
-    plugins: ["prettier-plugin-tailwindcss"],
+    plugins: ["prettier-plugin-tailwindcss", "prettier-plugin-jinja-template"],
     overrides: [
         {
             files: ["*.html.j2"],
             options: {
-                parser: "html",
+                parser: "jinja-template",
                 htmlWhitespaceSensitivity: "ignore",
                 bracketSameLine: true,
             },
