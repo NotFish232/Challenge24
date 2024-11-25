@@ -1,9 +1,9 @@
 $(async function () {
     let hotkey_to_element = {
-        49: "number_card_1", // 1
-        50: "number_card_2", // 2
-        51: "number_card_3", // 3
-        52: "number_card_4", // 4
+        97: "number_card_1", // a
+        115: "number_card_2", // s
+        100: "number_card_3", // d
+        102: "number_card_4", // f
         106: "operator_add", // j
         107: "operator_subtract", // k
         108: "operator_multiply", // l
@@ -146,6 +146,7 @@ $(async function () {
     });
 
     $(document).keypress(function (e) {
+        console.log(e.keyCode);
         for (let [hotkey, element] of Object.entries(hotkey_to_element)) {
             if (
                 e.keyCode == hotkey &&
