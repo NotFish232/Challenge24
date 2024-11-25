@@ -146,7 +146,6 @@ $(async function () {
     });
 
     $(document).keypress(function (e) {
-        console.log(e.keyCode);
         for (let [hotkey, element] of Object.entries(hotkey_to_element)) {
             if (
                 e.keyCode == hotkey &&
