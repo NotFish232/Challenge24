@@ -12,11 +12,17 @@ $(async function () {
         105: "special_operator_next", // i
     };
 
-    let number_cards = $("[id^=number_card]");
-    let operator_cards = $("[id^=operator]");
-    let special_operator_cards = $("[id^=special_operator]");
+    const log_element = $("#log");
+    const number_cards = $("[id^=number_card]");
+    const operator_cards = $("[id^=operator]");
+    const special_operator_cards = $("[id^=special_operator]");
 
-    let selected_class = "bg-blue-100";
+    const selected_class = "bg-blue-100";
+    const hidden_class = "invisible";
+    const win_class = "bg-yellow-500 scale-105 transition-all";
+
+    let cards;
+    let solutions;
 
 
     function is_num_clicked() {
@@ -28,18 +34,33 @@ $(async function () {
     }
 
     function check_win() {
+        let visible_cards = number_cards.filter(function () { return !$(this).hasClass(hidden_class); });
 
+        if (visible_cards.length == 1 && visible_cards.find("#card_value").attr("formula") == "24") {
+            visible_cards.addClass(win_class);
+            log_element.html(solutions.join('<br/>'));
+            setTimeout(new_cardset, 500);
+        }
     }
 
-    function reset() {
-        
+    function reset_cards() {
+        number_cards.each(function () { $(this).removeClass(`${selected_class} ${hidden_class} ${win_class}`) });
+        set_html_cards(cards);
+    }
+
+    async function new_cardset() {
+        let cardset = await fetch_cardset();
+        cards = cardset.cards;
+        solutions = cardset.solutions;
+
+        reset_cards();
     }
 
     number_cards.click(function () {
         if (is_num_clicked() && is_op_clicked()) {
-            let num_card_1 = number_cards.filter(function (_) { return $(this).hasClass(selected_class); });
+            let num_card_1 = number_cards.filter(function () { return $(this).hasClass(selected_class); });
             let num_card_2 = $(this);
-            let op_card = operator_cards.filter(function (_) { return $(this).hasClass(selected_class); });
+            let op_card = operator_cards.filter(function () { return $(this).hasClass(selected_class); });
 
             if (num_card_1.attr("id") != num_card_2.attr("id")) {
                 let num_1 = new Fraction(num_card_1.find("#card_value").attr("formula"));
@@ -66,10 +87,12 @@ $(async function () {
                 $(num_card_1).find("#card_value").html(result.toFraction());
 
                 // hide 2nd card
-                $(num_card_2).addClass("invisible");
+                $(num_card_2).addClass(hidden_class);
 
                 // deselect elements
                 op_card.removeClass(selected_class);
+
+                check_win();
             }
         } else {
             // toggle selection
@@ -85,9 +108,20 @@ $(async function () {
         }
     });
 
+    special_operator_cards.click(function () {
+        let special_op = $(this).attr("op_value");
+
+        if (special_op == "reset") {
+            reset_cards();
+        } else if (special_op == "next") {
+            log_element.html(solutions.join('<br/>'));
+            new_cardset();
+        }
+    })
+
     $(document).keypress(function (e) {
         for (let [hotkey, element] of Object.entries(hotkey_to_element)) {
-            if (e.keyCode == hotkey) {
+            if (e.keyCode == hotkey && !$(`#${element}`).hasClass(hidden_class)) {
                 $(`#${element}`).click();
             }
         }
@@ -109,7 +143,8 @@ $(async function () {
     }
 
     let cardset = await fetch_cardset();
-    set_html_cards(cardset.cards);
+    cards = cardset.cards;
+    solutions = cardset.solutions;
 
-
+    set_html_cards(cards);
 });
