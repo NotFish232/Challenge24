@@ -24,27 +24,43 @@ $(async function () {
     let cards;
     let solutions;
 
-
     function is_num_clicked() {
-        return number_cards.toArray().some(e => $(e).hasClass(selected_class));
+        return number_cards
+            .toArray()
+            .some((e) => $(e).hasClass(selected_class));
     }
 
     function is_op_clicked() {
-        return operator_cards.toArray().some(e => $(e).hasClass(selected_class));
+        return operator_cards
+            .toArray()
+            .some((e) => $(e).hasClass(selected_class));
     }
 
     function check_win() {
-        let visible_cards = number_cards.filter(function () { return !$(this).hasClass(hidden_class); });
+        let visible_cards = number_cards.filter(function () {
+            return !$(this).hasClass(hidden_class);
+        });
 
-        if (visible_cards.length == 1 && visible_cards.find("#card_value").attr("formula") == "24") {
+        if (
+            visible_cards.length == 1 &&
+            visible_cards.find("#card_value").attr("formula") == "24"
+        ) {
             visible_cards.addClass(win_class);
-            log_element.html(solutions.join('<br/>'));
+            log_element.html(solutions.join("<br/>"));
             setTimeout(new_cardset, 500);
         }
     }
 
     function reset_cards() {
-        number_cards.each(function () { $(this).removeClass(`${selected_class} ${hidden_class} ${win_class}`) });
+        number_cards.each(function () {
+            $(this).removeClass(
+                `${selected_class} ${hidden_class} ${win_class}`,
+            );
+        });
+        operator_cards.each(function () {
+            $(this).removeClass(selected_class);
+        });
+
         set_html_cards(cards);
     }
 
@@ -58,13 +74,21 @@ $(async function () {
 
     number_cards.click(function () {
         if (is_num_clicked() && is_op_clicked()) {
-            let num_card_1 = number_cards.filter(function () { return $(this).hasClass(selected_class); });
+            let num_card_1 = number_cards.filter(function () {
+                return $(this).hasClass(selected_class);
+            });
             let num_card_2 = $(this);
-            let op_card = operator_cards.filter(function () { return $(this).hasClass(selected_class); });
+            let op_card = operator_cards.filter(function () {
+                return $(this).hasClass(selected_class);
+            });
 
             if (num_card_1.attr("id") != num_card_2.attr("id")) {
-                let num_1 = new Fraction(num_card_1.find("#card_value").attr("formula"));
-                let num_2 = new Fraction(num_card_2.find("#card_value").attr("formula"));
+                let num_1 = new Fraction(
+                    num_card_1.find("#card_value").attr("formula"),
+                );
+                let num_2 = new Fraction(
+                    num_card_2.find("#card_value").attr("formula"),
+                );
 
                 let result;
                 switch (op_card.attr("op_value")) {
@@ -83,7 +107,9 @@ $(async function () {
                 }
 
                 // update with new values
-                $(num_card_1).find("#card_value").attr("formula", result.toFraction());
+                $(num_card_1)
+                    .find("#card_value")
+                    .attr("formula", result.toFraction());
                 $(num_card_1).find("#card_value").html(result.toFraction());
 
                 // hide 2nd card
@@ -114,19 +140,21 @@ $(async function () {
         if (special_op == "reset") {
             reset_cards();
         } else if (special_op == "next") {
-            log_element.html(solutions.join('<br/>'));
+            log_element.html(solutions.join("<br/>"));
             new_cardset();
         }
-    })
+    });
 
     $(document).keypress(function (e) {
         for (let [hotkey, element] of Object.entries(hotkey_to_element)) {
-            if (e.keyCode == hotkey && !$(`#${element}`).hasClass(hidden_class)) {
+            if (
+                e.keyCode == hotkey &&
+                !$(`#${element}`).hasClass(hidden_class)
+            ) {
                 $(`#${element}`).click();
             }
         }
     });
-
 
     async function fetch_cardset() {
         let response = await fetch("/cards");
