@@ -4,7 +4,7 @@ use std::{collections::HashSet, hash};
 use fraction::Fraction;
 use rand::Rng;
 
-const MAX_CARD_VALUE: u64 = 12;
+const MAX_CARD_VALUE: u64 = 100;
 const NUM_CARDS: u64 = 4;
 const TARGET_NUM: u64 = 24;
 
