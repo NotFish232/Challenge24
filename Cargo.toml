@@ -1,5 +1,5 @@
 [package]
-name = "challenge_24"
+name = "ch24"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,3 +9,5 @@ rand = "0.8.5"
 rocket = { version = "0.5.1", features = ["json"] }
 rocket_dyn_templates = { version = "0.2.0", features = ["minijinja"] }
 serde = "1.0.215"
+strum = { version = "0.26.3" }
+strum_macros = "0.26.4"

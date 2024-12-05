@@ -4,7 +4,8 @@ extern crate rocket;
 use rocket::{fs::FileServer, serde::json::Json};
 use rocket_dyn_templates::{context, Template};
 use serde::Serialize;
-mod generator;
+
+use ch24::generator::{find_all_solutions, generate_cardset};
 
 #[derive(Serialize)]
 struct Cards {
@@ -14,10 +15,14 @@ struct Cards {
 
 #[get("/cards", format = "json")]
 fn generate_cards_route() -> Json<Cards> {
-    let (cardset, solutions) = generator::generate_cardset();
+    let cardset = generate_cardset();
+    let solutions = find_all_solutions(cardset.clone());
 
     let cards = Cards {
-        cards: cardset,
+        cards: cardset
+            .iter()
+            .map(|c| c.eval().try_into().unwrap())
+            .collect(),
         solutions: solutions
             .iter()
             .map(|c| format!("{}", c))
