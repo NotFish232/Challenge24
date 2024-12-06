@@ -41,6 +41,4 @@ mod generator_tests {
                 .iter()
                 .all(|s| s.eval() == TARGET_NUM.into())));
     }
-
-  
 }
