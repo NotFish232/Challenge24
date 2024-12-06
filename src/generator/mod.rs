@@ -106,18 +106,16 @@ pub fn find_distinct_solutions(cardset: Vec<NumericExpression>) -> Vec<NumericEx
 }
 
 pub fn generate_cardset() -> Vec<NumericExpression> {
-    let mut cardset;
-
-    while {
-        cardset = Vec::with_capacity(NUM_CARDS);
+    loop {
+        let mut cardset = Vec::with_capacity(NUM_CARDS);
 
         for _ in 0..NUM_CARDS {
             let rand_number = rand::thread_rng().gen_range(1..=MAX_CARD_VALUE);
             cardset.push(NumericExpression::Number(rand_number));
         }
 
-        !is_solvable(cardset.clone())
-    } {}
-
-    cardset
+        if is_solvable(cardset.clone()) {
+            break cardset;
+        }
+    }
 }
